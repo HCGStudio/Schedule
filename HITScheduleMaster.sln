@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HITScheduleMaster", "HITSch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HITScheduleMasterCLI", "HITScheduleMasterCLI\HITScheduleMasterCLI.csproj", "{F9DE89DE-7201-4A8B-83C1-D099FA15672D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleTranslator", "ScheduleTranslator\ScheduleTranslator.csproj", "{94D665B1-E2B2-4444-BB1C-7DD0499811F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HITScheduleMasterCore", "ScheduleTranslator\HITScheduleMasterCore.csproj", "{94D665B1-E2B2-4444-BB1C-7DD0499811F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

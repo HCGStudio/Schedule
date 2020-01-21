@@ -6,7 +6,7 @@ using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 
-namespace ScheduleTranslator
+namespace HCGStudio.HITScheduleMasterCore
 {
     public enum Semester
     {

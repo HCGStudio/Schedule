@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using HCGStudio.HITScheduleMasterCore;
 using Ical.Net.Serialization;
 using MobileSuit;
-using ScheduleTranslator;
 using MobileSuit.IO;
 using static Newtonsoft.Json.JsonConvert;
 

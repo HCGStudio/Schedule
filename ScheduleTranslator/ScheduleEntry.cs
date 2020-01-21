@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace ScheduleTranslator
+namespace HCGStudio.HITScheduleMasterCore
 {
     public enum CourseTime
     {
