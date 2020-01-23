@@ -135,7 +135,7 @@ namespace HCGStudio.HITScheduleMasterCore
                 var singleWeek = !expression.Contains("双");
                 var doubleWeek = !expression.Contains("单");
                 var weekRange = (
-                    from w in Regex.Matches(expression, @"\d+")
+                    from Match w in Regex.Matches(expression, @"\d+")
                     select int.Parse(w.Value)
                 ).ToList();
                 if (weekRange.Count == 1)
