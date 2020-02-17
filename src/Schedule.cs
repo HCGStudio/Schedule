@@ -32,17 +32,27 @@ namespace HCGStudio.HITScheduleMasterCore
                 _ => Semester.Autumn
             };
             for (var i = 0; i < 7; i++) //列
-            for (var j = 0; j < 5; j++) //行
-            {
-                var current = table.Rows[j + 2][i + 2] as string;
-                if (string.IsNullOrWhiteSpace(current))
-                    continue;
-                var next = table.Rows[j + 3][i + 2] as string;
-                Entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
-                    (CourseTime) (j + 1),
-                    current, current == next));
-                if (current == next) j++;
-            }
+                for (var j = 0; j < 5; j++) //行
+                {
+                    var current = table.Rows[j + 2][i + 2] as string;
+                    if (string.IsNullOrWhiteSpace(current))
+                        continue;
+                    var next = table.Rows[j + 3][i + 2] as string;
+                    var currentCourses = current.Replace("周\n", "周").Split('\n');
+                    if (currentCourses.Length%2!=0)
+                    {
+                        throw new Exception("课表格式错误。");
+                    }
+                    for (var c = 0; c < currentCourses.Length; c += 2)
+                    {
+                        Entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
+                            (CourseTime)(j + 1),
+                            currentCourses[c],  currentCourses[c + 1],
+                            current == next));
+                    }
+
+                    if (current == next) j++;
+                }
         }
 
         public Schedule(int year, Semester semester)
@@ -69,7 +79,7 @@ namespace HCGStudio.HITScheduleMasterCore
 
         public List<ScheduleEntry> Entries { get; } = new List<ScheduleEntry>();
         public int Year { get; }
-        public DateTime SemesterStart => SemesterStarts[Year - 2020 + (int) Semester];
+        public DateTime SemesterStart => SemesterStarts[Year - 2020 + (int)Semester];
         public Semester Semester { get; set; }
 
         public Calendar GetCalendar()
@@ -79,7 +89,7 @@ namespace HCGStudio.HITScheduleMasterCore
             foreach (var entry in Entries)
             {
                 var i = 0;
-                var dayOfWeek = entry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int) entry.DayOfWeek - 1;
+                var dayOfWeek = entry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)entry.DayOfWeek - 1;
                 for (var w = entry.Week >> 1; w != 0; w >>= 1, i++)
                 {
                     if ((w & 1) != 1) continue;

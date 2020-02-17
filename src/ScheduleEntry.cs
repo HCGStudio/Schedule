@@ -16,16 +16,16 @@ namespace HCGStudio.HITScheduleMasterCore
 
     public class ScheduleEntry
     {
-        public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string scheduleExpression,
+        public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName,string scheduleExpression,
             bool isLongCourse = false)
         {
-            CourseName = scheduleExpression[..scheduleExpression.IndexOf('<')];
-            Teacher = scheduleExpression[(1 + scheduleExpression.IndexOf('>'))..scheduleExpression.IndexOf('[')];
+            CourseName = courseName;
+            Teacher = scheduleExpression[..scheduleExpression.IndexOf('[')];
             Week = ParseWeek(
-                scheduleExpression[(1 + scheduleExpression.IndexOf('['))..scheduleExpression.IndexOf(']')]
+                scheduleExpression[(1 + scheduleExpression.IndexOf('['))..scheduleExpression.LastIndexOf(']')]
             );
-            var location = scheduleExpression[(scheduleExpression.IndexOf(']') + 1)..];
-            Location = location.Length == 1 ? "待定地点" : location[1..];
+            var location = scheduleExpression[scheduleExpression.LastIndexOf('周')..];
+            Location = location.Length==1 ? "待定地点" : location[1..];
             CourseTime = courseTime;
             DayOfWeek = dayOfWeek;
             IsLongCourse = isLongCourse;
@@ -125,31 +125,38 @@ namespace HCGStudio.HITScheduleMasterCore
         {
             var week = 0u;
             WeekExpression = weekExpression
+                
                 .Replace(", ", "|") //英文逗号+空格
                 .Replace("，", "|") //中文逗号
                 .Replace(" ", "|"); //手动输入的空格
-
-            var expressions = WeekExpression.Split('|');
-            foreach (var expression in expressions)
+            var subWeekExpression = WeekExpression.Split("周|[".ToCharArray());
+            foreach (var s in subWeekExpression)
             {
-                var singleWeek = !expression.Contains("双");
-                var doubleWeek = !expression.Contains("单");
-                var weekRange = (
-                    from Match w in Regex.Matches(expression, @"\d+")
-                    select int.Parse(w.Value)
-                ).ToList();
-                if (weekRange.Count == 1)
-                    week |= 1u << weekRange[0];
-                else
-                    for (var i = weekRange[0]; i <= weekRange[1]; i++)
-                        if ((i & 1) == 1)
-                        {
-                            if (singleWeek) week |= 1u << i;
-                        }
-                        else
-                        {
-                            if (doubleWeek) week |= 1u << i;
-                        }
+                var singleWeek = !s.Contains("双");
+                var doubleWeek = !s.Contains("单");
+                var expressions = s.Split('|');
+
+                foreach (var expression in expressions)
+                {
+
+                    var weekRange = (
+                        from Match w in Regex.Matches(expression, @"\d+")
+                        select int.Parse(w.Value)
+                    ).ToList();
+                    if (weekRange.Count == 0) continue;
+                    if (weekRange.Count == 1)
+                        week |= 1u << weekRange[0];
+                    else
+                        for (var i = weekRange[0]; i <= weekRange[1]; i++)
+                            if ((i & 1) == 1)
+                            {
+                                if (singleWeek) week |= 1u << i;
+                            }
+                            else
+                            {
+                                if (doubleWeek) week |= 1u << i;
+                            }
+                }
             }
 
             var maxWeek = 0;
