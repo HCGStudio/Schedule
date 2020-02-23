@@ -16,6 +16,7 @@ namespace HCGStudio.HITScheduleMasterCore
 
     public class ScheduleEntry
     {
+        public ScheduleEntry() { }
         public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName,string scheduleExpression,
             bool isLongCourse = false)
         {
@@ -99,7 +100,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     状压储存的周数。i位为1表示此周有课。
         /// </summary>
-        public uint Week { get; private set; }
+        public uint Week { get; set; }
 
         public TimeSpan Length { get; set; }
 
