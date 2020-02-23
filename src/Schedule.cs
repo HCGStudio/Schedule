@@ -85,7 +85,7 @@ namespace HCGStudio.HITScheduleMasterCore
         public Calendar GetCalendar()
         {
             var calendar = new Calendar();
-
+            calendar.AddTimeZone(new VTimeZone("Asia/Shanghai"));
             foreach (var entry in Entries)
             {
                 var i = 0;
