@@ -12,6 +12,7 @@
     <PackageReference Include="Ical.Net" Version="4.1.11" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
 
   </ItemGroup>
 

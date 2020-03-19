@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace HCGStudio.HITScheduleMasterCore
 {
+    /// <summary>
+    ///     课程的开始时间
+    /// </summary>
     public enum CourseTime
     {
         Noon = 0,
@@ -14,10 +17,27 @@ namespace HCGStudio.HITScheduleMasterCore
         C9A = 5
     }
 
+    /// <summary>
+    ///     课表条目
+    /// </summary>
     public class ScheduleEntry
     {
-        public ScheduleEntry() { }
-        public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName,string scheduleExpression,
+        /// <summary>
+        ///     创建一个空的课表条目实例
+        /// </summary>
+        public ScheduleEntry()
+        {
+        }
+
+        /// <summary>
+        ///     创造一个课表条目实例
+        /// </summary>
+        /// <param name="dayOfWeek">课程在一周中所在的日子</param>
+        /// <param name="courseTime">课程开始的时间</param>
+        /// <param name="courseName">课程的名称</param>
+        /// <param name="scheduleExpression">课程的描述</param>
+        /// <param name="isLongCourse">是否是长课</param>
+        public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName, string scheduleExpression,
             bool isLongCourse = false)
         {
             CourseName = courseName;
@@ -26,7 +46,7 @@ namespace HCGStudio.HITScheduleMasterCore
                 scheduleExpression[(1 + scheduleExpression.IndexOf('['))..scheduleExpression.LastIndexOf(']')]
             );
             var location = scheduleExpression[scheduleExpression.LastIndexOf('周')..];
-            Location = location.Length==1 ? "待定地点" : location[1..];
+            Location = location.Length == 1 ? "待定地点" : location[1..];
             CourseTime = courseTime;
             DayOfWeek = dayOfWeek;
             IsLongCourse = isLongCourse;
@@ -102,6 +122,9 @@ namespace HCGStudio.HITScheduleMasterCore
         /// </summary>
         public uint Week { get; set; }
 
+        /// <summary>
+        ///     课程的长度
+        /// </summary>
         public TimeSpan Length { get; set; }
 
         private static TimeSpan[] StartTimes => new[]
@@ -114,19 +137,34 @@ namespace HCGStudio.HITScheduleMasterCore
             new TimeSpan(18, 30, 00)
         };
 
+        /// <summary>
+        ///     课程开始的时间距离0点的时长
+        /// </summary>
         public TimeSpan StartTime { get; set; }
+
+        /// <summary>
+        ///     时间段的汉字名称
+        /// </summary>
         public string CourseTimeName { get; }
 
+        /// <summary>
+        ///     从周数的表达式中更改周数
+        /// </summary>
+        /// <param name="weekExpression">周数的表达式</param>
         public void ChangeWeek(string weekExpression)
         {
             Week = ParseWeek(weekExpression);
         }
 
+        /// <summary>
+        ///     从周数的表达式中获取周数
+        /// </summary>
+        /// <param name="weekExpression">周数的表达式</param>
+        /// <returns>周数</returns>
         public uint ParseWeek(string weekExpression)
         {
             var week = 0u;
             WeekExpression = weekExpression
-                
                 .Replace(", ", "|") //英文逗号+空格
                 .Replace("，", "|") //中文逗号
                 .Replace(" ", "|"); //手动输入的空格
@@ -139,7 +177,6 @@ namespace HCGStudio.HITScheduleMasterCore
 
                 foreach (var expression in expressions)
                 {
-
                     var weekRange = (
                         from Match w in Regex.Matches(expression, @"\d+")
                         select int.Parse(w.Value)
