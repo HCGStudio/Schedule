@@ -3,10 +3,13 @@
   <PropertyGroup>
     <PackageId>HCGStudio.HITScheduleMasterCore</PackageId>
     <Version>1.0.0</Version>
-    <Authors>HCGStudio</Authors>
+    <Authors>mahoshojoHCG</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <RootNamespace>HCGStudio.HITScheduleMasterCore</RootNamespace>
+    <PackageProjectUrl>https://github.com/HCGStudio/HIT-Schedule-Master-Core</PackageProjectUrl>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
