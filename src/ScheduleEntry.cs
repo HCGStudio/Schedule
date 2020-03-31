@@ -101,10 +101,13 @@ namespace HCGStudio.HITScheduleMasterCore
         public string Teacher { get; set; }
 
         /// <summary>
-        ///     课程名
+        ///     课程详细描述
         /// </summary>
         public string WeekExpression { get; private set; }
 
+        /// <summary>
+        /// 课程名称
+        /// </summary>
         public string CourseName { get; set; }
 
         /// <summary>
@@ -161,7 +164,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// </summary>
         /// <param name="weekExpression">周数的表达式</param>
         /// <returns>周数</returns>
-        public uint ParseWeek(string weekExpression)
+        private uint ParseWeek(string weekExpression)
         {
             var week = 0u;
             WeekExpression = weekExpression

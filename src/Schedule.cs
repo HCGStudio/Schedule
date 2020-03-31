@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using ExcelDataReader;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
@@ -83,7 +84,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     课表的学期
         /// </summary>
-        public Semester Semester { get; set; }
+        public Semester Semester { get; }
 
         /// <summary>
         ///     从已经打打开的流中读取并创建课表
@@ -91,7 +92,8 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <param name="inputStream">输入的流</param>
         public static Schedule LoadFromStream(Stream inputStream)
         {
-            var cal = new Calendar();
+            //Fix codepage
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             var reader = ExcelReaderFactory.CreateReader(inputStream);
             var table = reader.AsDataSet().Tables[0];

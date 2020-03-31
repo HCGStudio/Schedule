@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <PackageId>HCGStudio.HITScheduleMasterCore</PackageId>
-    <Version>1.0.1</Version>
-    <Authors>mahoshojoHCG</Authors>
+    <Version>1.0.2</Version>
+    <Authors>HCGStudio</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <RootNamespace>HCGStudio.HITScheduleMasterCore</RootNamespace>
@@ -16,8 +16,8 @@
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Ical.Net" Version="4.1.11" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.1" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
 
   </ItemGroup>
