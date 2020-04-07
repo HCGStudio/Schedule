@@ -5,7 +5,11 @@ VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HITScheduleMasterCore", "src\HITScheduleMasterCore.csproj", "{FCBEE139-FC37-45C3-8E21-F105F832B6DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HITScheduleMasterCore.Test", "test\HITScheduleMasterCore.Test\HITScheduleMasterCore.Test.csproj", "{5D01BCAE-948B-4A5A-9BF4-0CAF9929902F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HITScheduleMasterCore.Test", "test\HITScheduleMasterCore.Test\HITScheduleMasterCore.Test.csproj", "{5D01BCAE-948B-4A5A-9BF4-0CAF9929902F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelDataReader", "submodules\ExcelDataReader\src\ExcelDataReader\ExcelDataReader.csproj", "{4737BF1F-72D7-406A-94E7-196CA960932D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelDataReader.DataSet", "submodules\ExcelDataReader\src\ExcelDataReader.DataSet\ExcelDataReader.DataSet.csproj", "{FFB3B209-EB8B-430F-8DD0-27BD0F7C44CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{5D01BCAE-948B-4A5A-9BF4-0CAF9929902F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D01BCAE-948B-4A5A-9BF4-0CAF9929902F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D01BCAE-948B-4A5A-9BF4-0CAF9929902F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4737BF1F-72D7-406A-94E7-196CA960932D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4737BF1F-72D7-406A-94E7-196CA960932D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4737BF1F-72D7-406A-94E7-196CA960932D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4737BF1F-72D7-406A-94E7-196CA960932D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFB3B209-EB8B-430F-8DD0-27BD0F7C44CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFB3B209-EB8B-430F-8DD0-27BD0F7C44CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFB3B209-EB8B-430F-8DD0-27BD0F7C44CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFB3B209-EB8B-430F-8DD0-27BD0F7C44CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

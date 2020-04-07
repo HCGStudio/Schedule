@@ -102,8 +102,9 @@ namespace HCGStudio.HITScheduleMasterCore
         public static Schedule LoadFromStream(Stream inputStream)
         {
             //Fix codepage
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
-            var reader = ExcelReaderFactory.CreateReader(inputStream,new ExcelReaderConfiguration{FallbackEncoding = Encoding.UTF8});
+            var reader = ExcelReaderFactory.CreateReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
             if (!(table.Rows[0][0] is string tableHead)) throw new ArgumentException("错误的文件格式。");
 
