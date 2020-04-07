@@ -19,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="张三课表.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="张三课表.xls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

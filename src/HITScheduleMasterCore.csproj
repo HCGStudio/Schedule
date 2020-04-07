@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>HCGStudio.HITScheduleMasterCore</PackageId>
-    <Version>1.0.7</Version>
+    <Version>1.1.0</Version>
     <Authors>HCGStudio</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
@@ -15,19 +15,17 @@
 
   <PropertyGroup>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <PackageReleaseNotes>Now, fixes all code page error by modifying origin lib.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update method.</PackageReleaseNotes>
+    <Description>Helps to convert schedule of HIT.</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Ical.Net" Version="4.1.11" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
 
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\submodules\ExcelDataReader\src\ExcelDataReader.DataSet\ExcelDataReader.DataSet.csproj" />
-    <ProjectReference Include="..\submodules\ExcelDataReader\src\ExcelDataReader\ExcelDataReader.csproj" />
   </ItemGroup>
 
 </Project>

@@ -96,9 +96,11 @@ namespace HCGStudio.HITScheduleMasterCore
         public Semester Semester { get; }
 
         /// <summary>
-        ///     从已经打打开的流中读取并创建课表
+        ///     从已经打打开的流中读取并创建课表，将会在下个版本移除，请使用<see cref="LoadFromXlsStream"/>。
         /// </summary>
+        /// 
         /// <param name="inputStream">输入的流</param>
+        [Obsolete]
         public static Schedule LoadFromStream(Stream inputStream)
         {
             //Fix codepage
@@ -127,6 +129,90 @@ namespace HCGStudio.HITScheduleMasterCore
                 for (var c = 0; c < currentCourses.Length; c += 2)
                     schedule._entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
                         (CourseTime) (j + 1),
+                        currentCourses[c], currentCourses[c + 1],
+                        current == next));
+
+                if (current == next) j++;
+            }
+
+            return schedule;
+        }
+
+
+        /// <summary>
+        ///     从已经打打开的XLS流中读取并创建课表
+        /// </summary>
+        /// <param name="inputStream">输入的流</param>
+        public static Schedule LoadFromXlsStream(Stream inputStream)
+        {
+            //Fix codepage
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
+            var reader = ExcelReaderFactory.CreateReader(inputStream);
+            var table = reader.AsDataSet().Tables[0];
+            if (!(table.Rows[0][0] is string tableHead)) throw new ArgumentException("错误的文件格式。");
+
+            var schedule = new Schedule(int.Parse(tableHead[..4]), tableHead[4] switch
+            {
+                '春' => Semester.Spring,
+                '夏' => Semester.Summer,
+                _ => Semester.Autumn
+            });
+
+            for (var i = 0; i < 7; i++) //列
+            for (var j = 0; j < 5; j++) //行
+            {
+                var current = table.Rows[j + 2][i + 2] as string;
+                if (string.IsNullOrWhiteSpace(current))
+                    continue;
+                var next = table.Rows[j + 3][i + 2] as string;
+                var currentCourses = current.Replace("周\n", "周").Split('\n');
+                if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
+                for (var c = 0; c < currentCourses.Length; c += 2)
+                    schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
+                        (CourseTime)(j + 1),
+                        currentCourses[c], currentCourses[c + 1],
+                        current == next));
+
+                if (current == next) j++;
+            }
+
+            return schedule;
+        }
+
+        /// <summary>
+        ///     从已经打打开的CSV流中读取并创建课表
+        /// </summary>
+        /// <param name="inputStream">输入的流</param>
+        public static Schedule LoadFromCsvStream(Stream inputStream)
+        {
+            //Fix codepage
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
+
+            var reader = ExcelReaderFactory.CreateCsvReader(inputStream);
+            var table = reader.AsDataSet().Tables[0];
+            if (!(table.Rows[0][0] is string tableHead)) throw new ArgumentException("错误的文件格式。");
+
+            var schedule = new Schedule(int.Parse(tableHead[..4]), tableHead[4] switch
+            {
+                '春' => Semester.Spring,
+                '夏' => Semester.Summer,
+                _ => Semester.Autumn
+            });
+
+            for (var i = 0; i < 7; i++) //列
+            for (var j = 0; j < 5; j++) //行
+            {
+                var current = table.Rows[j + 2][i + 2] as string;
+                if (string.IsNullOrWhiteSpace(current))
+                    continue;
+                var next = table.Rows[j + 3][i + 2] as string;
+                var currentCourses = current.Replace("周\n", "周").Split('\n');
+                if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
+                for (var c = 0; c < currentCourses.Length; c += 2)
+                    schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
+                        (CourseTime)(j + 1),
                         currentCourses[c], currentCourses[c + 1],
                         current == next));
 
