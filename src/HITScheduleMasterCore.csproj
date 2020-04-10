@@ -29,11 +29,4 @@
 
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\Documents\HSM\hsm@1x.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
 </Project>
