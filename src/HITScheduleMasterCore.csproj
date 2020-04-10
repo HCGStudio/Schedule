@@ -17,7 +17,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <PackageReleaseNotes>Add icon.</PackageReleaseNotes>
     <Description>Helps to convert schedule of HIT.</Description>
-    <PackageIcon>hsm@1x.png</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
