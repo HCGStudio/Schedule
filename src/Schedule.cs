@@ -18,10 +18,12 @@ namespace HCGStudio.HITScheduleMasterCore
         /// 春季学期
         /// </summary>
         Spring = 0,
+
         /// <summary>
         /// 秋季学期
         /// </summary>
         Autumn = 2,
+
         /// <summary>
         /// 夏季学期
         /// </summary>
@@ -169,8 +171,8 @@ namespace HCGStudio.HITScheduleMasterCore
                 var currentCourses = current.Replace("周\n", "周").Split('\n');
                 if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
                 for (var c = 0; c < currentCourses.Length; c += 2)
-                    schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
-                        (CourseTime)(j + 1),
+                    schedule._entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
+                        (CourseTime) (j + 1),
                         currentCourses[c], currentCourses[c + 1],
                         current == next));
 
@@ -211,8 +213,8 @@ namespace HCGStudio.HITScheduleMasterCore
                 var currentCourses = current.Replace("周\n", "周").Split('\n');
                 if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
                 for (var c = 0; c < currentCourses.Length; c += 2)
-                    schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
-                        (CourseTime)(j + 1),
+                    schedule._entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
+                        (CourseTime) (j + 1),
                         currentCourses[c], currentCourses[c + 1],
                         current == next));
 

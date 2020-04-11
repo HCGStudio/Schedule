@@ -13,22 +13,27 @@ namespace HCGStudio.HITScheduleMasterCore
         /// 中午课
         /// </summary>
         Noon = 0,
+
         /// <summary>
         /// 上午第一二节
         /// </summary>
         C12 = 1,
+
         /// <summary>
         /// 上午第三四节
         /// </summary>
         C34 = 2,
+
         /// <summary>
         /// 下午第五六节
         /// </summary>
         C56 = 3,
+
         /// <summary>
-        /// 晚上第七八节
+        /// 下午第七八节
         /// </summary>
         C78 = 4,
+
         /// <summary>
         /// 晚上第九十节
         /// </summary>
@@ -68,20 +73,6 @@ namespace HCGStudio.HITScheduleMasterCore
             CourseTime = courseTime;
             DayOfWeek = dayOfWeek;
             IsLongCourse = isLongCourse;
-            Length = !IsLongCourse
-                ? new TimeSpan(1, 45, 00)
-                : new TimeSpan(3, 30, 00);
-
-            StartTime = StartTimes[(int) CourseTime];
-            CourseTimeName = CourseTime switch
-            {
-                CourseTime.C12 => "一二节",
-                CourseTime.C34 => "三四节",
-                CourseTime.C56 => "五六节",
-                CourseTime.C78 => "七八节",
-                CourseTime.C9A => "晚上",
-                _ => "中午"
-            };
         }
 
         /// <summary>
@@ -103,15 +94,38 @@ namespace HCGStudio.HITScheduleMasterCore
             _ => "周日"
         };
 
+        private bool _isLongCourse;
+
         /// <summary>
         ///     是否是三节课长度的课
         /// </summary>
-        public bool IsLongCourse { get; }
+        public bool IsLongCourse
+        {
+            get => _isLongCourse;
+            set
+            {
+                _isLongCourse = value;
+                Length = !value
+                    ? new TimeSpan(1, 45, 00)
+                    : new TimeSpan(3, 30, 00);
+            }
+        }
+
+        private CourseTime? _courseTime;
 
         /// <summary>
         ///     课程时间
         /// </summary>
-        public CourseTime CourseTime { get; }
+        public CourseTime? CourseTime
+        {
+            get => _courseTime;
+            set
+            {
+                _courseTime = value;
+                if (value != null)
+                    StartTime = StartTimes[(int) value];
+            }
+        }
 
         /// <summary>
         ///     授课教师
@@ -136,17 +150,27 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     最大周数
         /// </summary>
-        public int MaxWeek { get; set; }
+        public int MaxWeek { get; private set; }
 
         /// <summary>
         ///     状压储存的周数。i位为1表示此周有课。
         /// </summary>
         public uint Week { get; set; }
 
+        private TimeSpan _length;
+
         /// <summary>
         ///     课程的长度
         /// </summary>
-        public TimeSpan Length { get; set; }
+        public TimeSpan Length
+        {
+            get => _length;
+            set
+            {
+                _isLongCourse = value == new TimeSpan(3, 30, 00);
+                _length = value;
+            }
+        }
 
         private static TimeSpan[] StartTimes => new[]
         {
@@ -158,6 +182,7 @@ namespace HCGStudio.HITScheduleMasterCore
             new TimeSpan(18, 30, 00)
         };
 
+
         /// <summary>
         ///     课程开始的时间距离0点的时长
         /// </summary>
@@ -166,7 +191,15 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     时间段的汉字名称
         /// </summary>
-        public string CourseTimeName { get; }
+        public string CourseTimeName => _courseTime switch
+        {
+            HITScheduleMasterCore.CourseTime.C12 => "一二节",
+            HITScheduleMasterCore.CourseTime.C34 => "三四节",
+            HITScheduleMasterCore.CourseTime.C56 => "五六节",
+            HITScheduleMasterCore.CourseTime.C78 => "七八节",
+            HITScheduleMasterCore.CourseTime.C9A => "晚上",
+            _ => "中午"
+        };
 
         /// <summary>
         ///     从周数的表达式中更改周数
