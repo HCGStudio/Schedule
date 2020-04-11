@@ -123,7 +123,7 @@ namespace HCGStudio.HITScheduleMasterCore
             {
                 _courseTime = value;
                 if (value != null)
-                    StartTime = StartTimes[(int) value];
+                    StartTime = StartTimes[(int)value];
             }
         }
 
@@ -132,10 +132,16 @@ namespace HCGStudio.HITScheduleMasterCore
         /// </summary>
         public string Teacher { get; set; }
 
+        private string _weekExpression;
+
         /// <summary>
         ///     课程详细描述
         /// </summary>
-        public string WeekExpression { get; private set; }
+        public string WeekExpression
+        {
+            get => _weekExpression;
+            set => Week = ParseWeek(value);
+        }
 
         /// <summary>
         /// 课程名称
@@ -202,9 +208,10 @@ namespace HCGStudio.HITScheduleMasterCore
         };
 
         /// <summary>
-        ///     从周数的表达式中更改周数
+        ///     从周数的表达式中更改周数，请考虑使用<see cref="WeekExpression"/>的set访问器。
         /// </summary>
         /// <param name="weekExpression">周数的表达式</param>
+        [Obsolete]
         public void ChangeWeek(string weekExpression)
         {
             Week = ParseWeek(weekExpression);
@@ -218,7 +225,7 @@ namespace HCGStudio.HITScheduleMasterCore
         private uint ParseWeek(string weekExpression)
         {
             var week = 0u;
-            WeekExpression = weekExpression
+            _weekExpression = weekExpression
                 .Replace(", ", "|") //英文逗号+空格
                 .Replace("，", "|") //中文逗号
                 .Replace(" ", "|"); //手动输入的空格
