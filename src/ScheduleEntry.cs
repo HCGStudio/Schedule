@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static HCGStudio.HITScheduleMasterCore.ScheduleExtension;
 
 namespace HCGStudio.HITScheduleMasterCore
 {
@@ -63,6 +65,8 @@ namespace HCGStudio.HITScheduleMasterCore
         public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName, string scheduleExpression,
             bool isLongCourse = false)
         {
+            if(scheduleExpression == null)
+                throw new ArgumentNullException(nameof(scheduleExpression));
             CourseName = courseName;
             Teacher = scheduleExpression[..scheduleExpression.IndexOf('[')];
             Week = ParseWeek(
@@ -83,16 +87,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     周几
         /// </summary>
-        public string DayOfWeekName => DayOfWeek switch
-        {
-            DayOfWeek.Monday => "周一",
-            DayOfWeek.Tuesday => "周二",
-            DayOfWeek.Wednesday => "周三",
-            DayOfWeek.Thursday => "周四",
-            DayOfWeek.Friday => "周五",
-            DayOfWeek.Saturday => "周六",
-            _ => "周日"
-        };
+        public string DayOfWeekName => CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(DayOfWeek);
 
         private bool _isLongCourse;
 
@@ -140,7 +135,12 @@ namespace HCGStudio.HITScheduleMasterCore
         public string WeekExpression
         {
             get => _weekExpression;
-            set => Week = ParseWeek(value);
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                Week = ParseWeek(value);
+            }
         }
 
         /// <summary>
@@ -197,25 +197,8 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     时间段的汉字名称
         /// </summary>
-        public string CourseTimeName => _courseTime switch
-        {
-            HITScheduleMasterCore.CourseTime.C12 => "一二节",
-            HITScheduleMasterCore.CourseTime.C34 => "三四节",
-            HITScheduleMasterCore.CourseTime.C56 => "五六节",
-            HITScheduleMasterCore.CourseTime.C78 => "七八节",
-            HITScheduleMasterCore.CourseTime.C9A => "晚上",
-            _ => "中午"
-        };
+        public string CourseTimeName => CourseTime?.ToCultureString(CultureInfo.CurrentCulture);
 
-        /// <summary>
-        ///     从周数的表达式中更改周数，请考虑使用<see cref="WeekExpression"/>的set访问器。
-        /// </summary>
-        /// <param name="weekExpression">周数的表达式</param>
-        [Obsolete]
-        public void ChangeWeek(string weekExpression)
-        {
-            Week = ParseWeek(weekExpression);
-        }
 
         /// <summary>
         ///     从周数的表达式中获取周数
@@ -240,7 +223,7 @@ namespace HCGStudio.HITScheduleMasterCore
                 {
                     var weekRange = (
                         from Match w in Regex.Matches(expression, @"\d+")
-                        select int.Parse(w.Value)
+                        select int.Parse(w.Value,CultureInfo.CurrentCulture.NumberFormat)
                     ).ToList();
                     if (weekRange.Count == 0) continue;
                     if (weekRange.Count == 1)

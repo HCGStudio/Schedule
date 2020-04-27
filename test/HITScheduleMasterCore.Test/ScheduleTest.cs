@@ -15,6 +15,7 @@ namespace HITScheduleMasterCore.Test
         {
             var schedule = Schedule.LoadFromXlsStream(new FileStream("张三课表.xls", FileMode.Open));
             var cal = schedule.GetCalendar();
+            _ = cal.ToString();
         }
 
         [TestMethod]
@@ -22,6 +23,7 @@ namespace HITScheduleMasterCore.Test
         {
             var schedule = Schedule.LoadFromCsvStream(new FileStream("张三课表.csv", FileMode.Open));
             var cal = schedule.GetCalendar();
+            _ = cal.ToString();
         }
     }
 }

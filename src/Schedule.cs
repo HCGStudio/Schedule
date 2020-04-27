@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Resources;
 using System.Text;
 using ExcelDataReader;
 using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
+using Calendar = Ical.Net.Calendar;
 
 namespace HCGStudio.HITScheduleMasterCore
 {
     /// <summary>
     ///     课表中的学期
     /// </summary>
-    public enum Semester
+    public enum Semester 
     {
         /// <summary>
         /// 春季学期
@@ -29,11 +33,11 @@ namespace HCGStudio.HITScheduleMasterCore
         /// </summary>
         Summer = 1
     }
-
+#pragma warning disable CA1710
     /// <summary>
     ///     课表实例
     /// </summary>
-    public class Schedule
+    public class Schedule : IEnumerable<ScheduleEntry>
     {
         private readonly List<ScheduleEntry> _entries = new List<ScheduleEntry>();
 
@@ -90,7 +94,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     课表学期开始的时间
         /// </summary>
-        public DateTime SemesterStart => SemesterStarts[Year - 2020 + (int) Semester];
+        public DateTime SemesterStart => SemesterStarts[Year - 2020 + (int)Semester];
 
         /// <summary>
         ///     课表的学期
@@ -98,63 +102,22 @@ namespace HCGStudio.HITScheduleMasterCore
         public Semester Semester { get; }
 
         /// <summary>
-        ///     从已经打打开的流中读取并创建课表，将会在下个版本移除，请使用<see cref="LoadFromXlsStream"/>。
-        /// </summary>
-        /// 
-        /// <param name="inputStream">输入的流</param>
-        [Obsolete]
-        public static Schedule LoadFromStream(Stream inputStream)
-        {
-            //Fix codepage
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
-            var reader = ExcelReaderFactory.CreateReader(inputStream);
-            var table = reader.AsDataSet().Tables[0];
-            if (!(table.Rows[0][0] is string tableHead)) throw new ArgumentException("错误的文件格式。");
-
-            var schedule = new Schedule(int.Parse(tableHead[..4]), tableHead[4] switch
-            {
-                '春' => Semester.Spring,
-                '夏' => Semester.Summer,
-                _ => Semester.Autumn
-            });
-
-            for (var i = 0; i < 7; i++) //列
-            for (var j = 0; j < 5; j++) //行
-            {
-                var current = table.Rows[j + 2][i + 2] as string;
-                if (string.IsNullOrWhiteSpace(current))
-                    continue;
-                var next = table.Rows[j + 3][i + 2] as string;
-                var currentCourses = current.Replace("周\n", "周").Split('\n');
-                if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
-                for (var c = 0; c < currentCourses.Length; c += 2)
-                    schedule._entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
-                        (CourseTime) (j + 1),
-                        currentCourses[c], currentCourses[c + 1],
-                        current == next));
-
-                if (current == next) j++;
-            }
-
-            return schedule;
-        }
-
-
-        /// <summary>
         ///     从已经打打开的XLS流中读取并创建课表
         /// </summary>
         /// <param name="inputStream">输入的流</param>
         public static Schedule LoadFromXlsStream(Stream inputStream)
         {
+            var res = new ResourceManager(typeof(ScheduleMasterString));
             //Fix codepage
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
             var reader = ExcelReaderFactory.CreateReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
-            if (!(table.Rows[0][0] is string tableHead)) throw new ArgumentException("错误的文件格式。");
+            if (!(table.Rows[0][0] is string tableHead))
+                throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
 
-            var schedule = new Schedule(int.Parse(tableHead[..4]), tableHead[4] switch
+            var schedule = new Schedule(int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
+                tableHead[4] switch
             {
                 '春' => Semester.Spring,
                 '夏' => Semester.Summer,
@@ -162,22 +125,23 @@ namespace HCGStudio.HITScheduleMasterCore
             });
 
             for (var i = 0; i < 7; i++) //列
-            for (var j = 0; j < 5; j++) //行
-            {
-                var current = table.Rows[j + 2][i + 2] as string;
-                if (string.IsNullOrWhiteSpace(current))
-                    continue;
-                var next = table.Rows[j + 3][i + 2] as string;
-                var currentCourses = current.Replace("周\n", "周").Split('\n');
-                if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
-                for (var c = 0; c < currentCourses.Length; c += 2)
-                    schedule._entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
-                        (CourseTime) (j + 1),
-                        currentCourses[c], currentCourses[c + 1],
-                        current == next));
+                for (var j = 0; j < 5; j++) //行
+                {
+                    var current = table.Rows[j + 2][i + 2] as string;
+                    if (string.IsNullOrWhiteSpace(current))
+                        continue;
+                    var next = table.Rows[j + 3][i + 2] as string;
+                    var currentCourses = current.Replace("周\n", "周").Split('\n');
+                    if (currentCourses.Length % 2 != 0)
+                        throw new Exception(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
+                    for (var c = 0; c < currentCourses.Length; c += 2)
+                        schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
+                            (CourseTime)(j + 1),
+                            currentCourses[c], currentCourses[c + 1],
+                            current == next));
 
-                if (current == next) j++;
-            }
+                    if (current == next) j++;
+                }
 
             return schedule;
         }
@@ -188,38 +152,42 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <param name="inputStream">输入的流</param>
         public static Schedule LoadFromCsvStream(Stream inputStream)
         {
+            var res = new ResourceManager(typeof(ScheduleMasterString));
             //Fix codepage
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
 
             var reader = ExcelReaderFactory.CreateCsvReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
-            if (!(table.Rows[0][0] is string tableHead)) throw new ArgumentException("错误的文件格式。");
+            if (!(table.Rows[0][0] is string tableHead))
+                throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
 
-            var schedule = new Schedule(int.Parse(tableHead[..4]), tableHead[4] switch
-            {
-                '春' => Semester.Spring,
-                '夏' => Semester.Summer,
-                _ => Semester.Autumn
-            });
+            var schedule = new Schedule(int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
+                tableHead[4] switch
+                {
+                    '春' => Semester.Spring,
+                    '夏' => Semester.Summer,
+                    _ => Semester.Autumn
+                });
 
             for (var i = 0; i < 7; i++) //列
-            for (var j = 0; j < 5; j++) //行
-            {
-                var current = table.Rows[j + 2][i + 2] as string;
-                if (string.IsNullOrWhiteSpace(current))
-                    continue;
-                var next = table.Rows[j + 3][i + 2] as string;
-                var currentCourses = current.Replace("周\n", "周").Split('\n');
-                if (currentCourses.Length % 2 != 0) throw new Exception("课表格式错误。");
-                for (var c = 0; c < currentCourses.Length; c += 2)
-                    schedule._entries.Add(new ScheduleEntry((DayOfWeek) ((i + 1) % 7),
-                        (CourseTime) (j + 1),
-                        currentCourses[c], currentCourses[c + 1],
-                        current == next));
+                for (var j = 0; j < 5; j++) //行
+                {
+                    var current = table.Rows[j + 2][i + 2] as string;
+                    if (string.IsNullOrWhiteSpace(current))
+                        continue;
+                    var next = table.Rows[j + 3][i + 2] as string;
+                    var currentCourses = current.Replace("周\n", "周").Split('\n');
+                    if (currentCourses.Length % 2 != 0)
+                        throw new Exception(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
+                    for (var c = 0; c < currentCourses.Length; c += 2)
+                        schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
+                            (CourseTime)(j + 1),
+                            currentCourses[c], currentCourses[c + 1],
+                            current == next));
 
-                if (current == next) j++;
-            }
+                    if (current == next) j++;
+                }
 
             return schedule;
         }
@@ -248,12 +216,13 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <returns>表示当前课表的日历实例</returns>
         public Calendar GetCalendar()
         {
+            var res = new ResourceManager(typeof(ScheduleMasterString));
             var calendar = new Calendar();
             calendar.AddTimeZone(new VTimeZone("Asia/Shanghai"));
             foreach (var entry in _entries)
             {
                 var i = 0;
-                var dayOfWeek = entry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int) entry.DayOfWeek - 1;
+                var dayOfWeek = entry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)entry.DayOfWeek - 1;
                 for (var w = entry.Week >> 1; w != 0; w >>= 1, i++)
                 {
                     if ((w & 1) != 1) continue;
@@ -267,7 +236,9 @@ namespace HCGStudio.HITScheduleMasterCore
                     };
                     cEvent.Alarms.Add(new Alarm
                     {
-                        Summary = $"您在{entry.Location}有一节{entry.CourseName}课程即将开始。",
+                        Summary = string.Format(CultureInfo.CurrentCulture,
+                            res.GetString("您在{0}有一节{1}即将开始", CultureInfo.CurrentCulture)!,
+                            entry.Location, entry.CourseName),
                         Action = AlarmAction.Display,
                         Trigger = new Trigger(TimeSpan.FromMinutes(-25))
                     });
@@ -283,6 +254,17 @@ namespace HCGStudio.HITScheduleMasterCore
             //};
             //calendar.Name = $"{Year}{sem}课程表";
             return calendar;
+        }
+
+        /// <inheritdoc />
+        public IEnumerator<ScheduleEntry> GetEnumerator()
+        {
+            return _entries.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

@@ -2,7 +2,7 @@
 // https://github.com/dotnet/corefx/blob/1597b894a2e9cac668ce6e484506eca778a85197/src/Common/src/CoreLib/System/Range.cs
 
 #nullable enable
-
+#pragma warning disable
 using System.Runtime.CompilerServices;
 
 namespace System
@@ -274,3 +274,5 @@ namespace System.Runtime.CompilerServices
         }
     }
 }
+
+#pragma warning restore
