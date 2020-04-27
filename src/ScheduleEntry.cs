@@ -65,13 +65,22 @@ namespace HCGStudio.HITScheduleMasterCore
         public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName, string scheduleExpression,
             bool isLongCourse = false)
         {
-            if(scheduleExpression == null)
+            if (scheduleExpression == null)
                 throw new ArgumentNullException(nameof(scheduleExpression));
             CourseName = courseName;
+#if NETCOREAPP3_1
+            Teacher = scheduleExpression[..scheduleExpression.IndexOf('[', StringComparison.CurrentCulture)];
+            Week = ParseWeek(
+                scheduleExpression[(1 + scheduleExpression.IndexOf('[', StringComparison.CurrentCulture))..scheduleExpression.LastIndexOf(']')]
+            );
+#endif
+
+#if NETSTANDARD2_0
             Teacher = scheduleExpression[..scheduleExpression.IndexOf('[')];
             Week = ParseWeek(
                 scheduleExpression[(1 + scheduleExpression.IndexOf('['))..scheduleExpression.LastIndexOf(']')]
             );
+#endif
             var location = scheduleExpression[scheduleExpression.LastIndexOf('周')..];
             Location = location.Length == 1 ? "待定地点" : location[1..];
             CourseTime = courseTime;
@@ -208,22 +217,37 @@ namespace HCGStudio.HITScheduleMasterCore
         private uint ParseWeek(string weekExpression)
         {
             var week = 0u;
-            _weekExpression = weekExpression
+            _weekExpression =
+#if NETCOREAPP3_1
+             weekExpression
+                .Replace(", ", "|", StringComparison.CurrentCulture) //英文逗号+空格
+                .Replace("，", "|", StringComparison.CurrentCulture) //中文逗号
+                .Replace(" ", "|", StringComparison.CurrentCulture); //手动输入的空格
+#endif
+#if NETSTANDARD2_0
+             weekExpression
                 .Replace(", ", "|") //英文逗号+空格
                 .Replace("，", "|") //中文逗号
                 .Replace(" ", "|"); //手动输入的空格
+#endif
             var subWeekExpression = WeekExpression.Split("周|[".ToCharArray());
             foreach (var s in subWeekExpression)
             {
+#if NETCOREAPP3_1
+                var singleWeek = !s.Contains("双", StringComparison.CurrentCulture);
+                var doubleWeek = !s.Contains("单", StringComparison.CurrentCulture);
+#endif
+#if NETSTANDARD2_0
                 var singleWeek = !s.Contains("双");
                 var doubleWeek = !s.Contains("单");
+#endif
                 var expressions = s.Split('|');
 
                 foreach (var expression in expressions)
                 {
                     var weekRange = (
                         from Match w in Regex.Matches(expression, @"\d+")
-                        select int.Parse(w.Value,CultureInfo.CurrentCulture.NumberFormat)
+                        select int.Parse(w.Value, CultureInfo.CurrentCulture.NumberFormat)
                     ).ToList();
                     if (weekRange.Count == 0) continue;
                     if (weekRange.Count == 1)

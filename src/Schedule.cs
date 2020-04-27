@@ -16,7 +16,7 @@ namespace HCGStudio.HITScheduleMasterCore
     /// <summary>
     ///     课表中的学期
     /// </summary>
-    public enum Semester 
+    public enum Semester
     {
         /// <summary>
         /// 春季学期
@@ -118,11 +118,11 @@ namespace HCGStudio.HITScheduleMasterCore
 
             var schedule = new Schedule(int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
                 tableHead[4] switch
-            {
-                '春' => Semester.Spring,
-                '夏' => Semester.Summer,
-                _ => Semester.Autumn
-            });
+                {
+                    '春' => Semester.Spring,
+                    '夏' => Semester.Summer,
+                    _ => Semester.Autumn
+                });
 
             for (var i = 0; i < 7; i++) //列
                 for (var j = 0; j < 5; j++) //行
@@ -131,7 +131,13 @@ namespace HCGStudio.HITScheduleMasterCore
                     if (string.IsNullOrWhiteSpace(current))
                         continue;
                     var next = table.Rows[j + 3][i + 2] as string;
+#if NETCOREAPP3_1
+                    var currentCourses = current.Replace("周\n", "周", StringComparison.CurrentCulture).Split('\n');
+#endif
+
+#if NETSTANDARD2_0
                     var currentCourses = current.Replace("周\n", "周").Split('\n');
+#endif
                     if (currentCourses.Length % 2 != 0)
                         throw new Exception(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
                     for (var c = 0; c < currentCourses.Length; c += 2)
@@ -177,7 +183,13 @@ namespace HCGStudio.HITScheduleMasterCore
                     if (string.IsNullOrWhiteSpace(current))
                         continue;
                     var next = table.Rows[j + 3][i + 2] as string;
+#if NETCOREAPP3_1
+                    var currentCourses = current.Replace("周\n", "周", StringComparison.CurrentCulture).Split('\n');
+#endif
+
+#if NETSTANDARD2_0
                     var currentCourses = current.Replace("周\n", "周").Split('\n');
+#endif
                     if (currentCourses.Length % 2 != 0)
                         throw new Exception(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
                     for (var c = 0; c < currentCourses.Length; c += 2)

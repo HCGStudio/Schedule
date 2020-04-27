@@ -1,6 +1,6 @@
 ﻿// https://github.com/dotnet/corefx/blob/1597b894a2e9cac668ce6e484506eca778a85197/src/Common/src/CoreLib/System/Index.cs
 // https://github.com/dotnet/corefx/blob/1597b894a2e9cac668ce6e484506eca778a85197/src/Common/src/CoreLib/System/Range.cs
-
+#if NETSTANDARD2_0
 #nullable enable
 #pragma warning disable
 using System.Runtime.CompilerServices;
@@ -276,3 +276,4 @@ namespace System.Runtime.CompilerServices
 }
 
 #pragma warning restore
+#endif
