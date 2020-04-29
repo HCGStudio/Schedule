@@ -6,7 +6,7 @@ HIT课表大师的核心库，帮助转化XLS或者CSV格式的课表！目前�
 
 快速开始：
 
-``` C#
+``` csharp
 using var fs = File.OpenRead(path);
 var schedule = Schedule.LoadFromXlsStream(fs);
 var cal = Schedule.GetCalendar();
