@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>HCGStudio.HITScheduleMasterCore</PackageId>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <Authors>HCGStudio</Authors>
     <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
@@ -15,7 +15,7 @@
 
   <PropertyGroup>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <PackageReleaseNotes>Now also targets .net core 3.1.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adds IEnumerable to the schedule.</PackageReleaseNotes>
     <Description>Helps to convert schedule of HIT.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>

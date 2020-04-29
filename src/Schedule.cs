@@ -79,6 +79,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <summary>
         ///     当前课表中所有的条目
         /// </summary>
+        [Obsolete("请使用其他替代方法")]
         public List<ScheduleEntry> Entries => new List<ScheduleEntry>(_entries);
 
         /// <summary>
@@ -221,7 +222,15 @@ namespace HCGStudio.HITScheduleMasterCore
         {
             _entries.RemoveAt(index);
         }
-
+        /// <summary>
+        /// 移除指定的条目
+        /// </summary>
+        /// <param name="item">条目</param>
+        /// <returns>是否成功移除</returns>
+        public bool Remove(ScheduleEntry item)
+        {
+            return _entries.Remove(item);
+        }
         /// <summary>
         ///     将当前课表实例转化为日历
         /// </summary>

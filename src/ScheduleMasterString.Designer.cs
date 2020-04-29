@@ -106,6 +106,15 @@ namespace HCGStudio.HITScheduleMasterCore {
         }
         
         /// <summary>
+        ///   查找类似 地点待定 的本地化字符串。
+        /// </summary>
+        internal static string 地点待定 {
+            get {
+                return ResourceManager.GetString("地点待定", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 您在{0}有一节{1}即将开始。 的本地化字符串。
         /// </summary>
         internal static string 您在_0_有一节_1_即将开始 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Resources;
 using System.Text.RegularExpressions;
 using static HCGStudio.HITScheduleMasterCore.ScheduleExtension;
 
@@ -65,6 +66,7 @@ namespace HCGStudio.HITScheduleMasterCore
         public ScheduleEntry(DayOfWeek dayOfWeek, CourseTime courseTime, string courseName, string scheduleExpression,
             bool isLongCourse = false)
         {
+            var res = new ResourceManager(typeof(ScheduleMasterString));
             if (scheduleExpression == null)
                 throw new ArgumentNullException(nameof(scheduleExpression));
             CourseName = courseName;
@@ -82,7 +84,7 @@ namespace HCGStudio.HITScheduleMasterCore
             );
 #endif
             var location = scheduleExpression[scheduleExpression.LastIndexOf('周')..];
-            Location = location.Length == 1 ? "待定地点" : location[1..];
+            Location = location.Length == 1 ? res.GetString("地点待定",CultureInfo.CurrentCulture) : location[1..];
             CourseTime = courseTime;
             DayOfWeek = dayOfWeek;
             IsLongCourse = isLongCourse;

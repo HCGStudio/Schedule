@@ -132,6 +132,9 @@
   <data name="五六节" xml:space="preserve">
     <value>5-6st Class</value>
   </data>
+  <data name="地点待定" xml:space="preserve">
+    <value>Unknow Location</value>
+  </data>
   <data name="您在{0}有一节{1}即将开始" xml:space="preserve">
     <value>Your course {1} at {0} will start soon.</value>
   </data>
