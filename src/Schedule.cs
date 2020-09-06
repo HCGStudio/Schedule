@@ -64,9 +64,10 @@ namespace HCGStudio.HITScheduleMasterCore
         {
             new DateTime(2020, 02, 24),
             new DateTime(2020, 06, 29),
-            new DateTime(2020, 08, 31),
-            new DateTime(2021, 02, 22),
-            new DateTime(2021, 06, 28)
+            new DateTime(2020, 09, 07),
+            new DateTime(2021, 03, 08),
+            new DateTime(2021, 07, 12)
+
         };
 
         /// <summary>
