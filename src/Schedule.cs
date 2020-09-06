@@ -113,7 +113,7 @@ namespace HCGStudio.HITScheduleMasterCore
             //Fix codepage
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
-            var reader = ExcelReaderFactory.CreateReader(inputStream);
+            using var reader = ExcelReaderFactory.CreateReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
             if (!(table.Rows[0][0] is string tableHead))
                 throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
@@ -165,7 +165,7 @@ namespace HCGStudio.HITScheduleMasterCore
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
 
-            var reader = ExcelReaderFactory.CreateCsvReader(inputStream);
+            using var reader = ExcelReaderFactory.CreateCsvReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
             if (!(table.Rows[0][0] is string tableHead))
                 throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
