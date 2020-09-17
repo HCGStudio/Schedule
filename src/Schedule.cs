@@ -231,7 +231,7 @@ namespace HCGStudio.HITScheduleMasterCore
                         Duration = entry.Length,
                         Summary = $"{entry.CourseName} by {entry.Teacher} at {entry.Location}"
                     };
-                    cEvent.Alarms.Add(new Alarm
+                    if (entry.EnableNotification) cEvent.Alarms.Add(new Alarm
                     {
                         Summary = string.Format(CultureInfo.CurrentCulture,
                             res.GetString("您在{0}有一节{1}即将开始", CultureInfo.CurrentCulture)!,
