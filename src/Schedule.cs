@@ -239,6 +239,10 @@ namespace HCGStudio.HITScheduleMasterCore
                         Action = AlarmAction.Display,
                         Trigger = new Trigger(TimeSpan.FromMinutes(-25))
                     });
+                    else
+                    {
+                        cEvent.Alarms.Clear();
+                    }
                     calendar.Events.Add(cEvent);
                 }
             }
