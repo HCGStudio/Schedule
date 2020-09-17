@@ -73,7 +73,7 @@ namespace HCGStudio.HITScheduleMasterCore
 #if NETCOREAPP3_1
             Teacher = scheduleExpression[..scheduleExpression.IndexOf('[', StringComparison.CurrentCulture)];
             Week = ParseWeek(
-                scheduleExpression[(1 + scheduleExpression.IndexOf('[', StringComparison.CurrentCulture))..scheduleExpression.LastIndexOf(']')]
+                scheduleExpression[(1 + scheduleExpression.IndexOf('[', StringComparison.CurrentCulture))..scheduleExpression.LastIndexOf('周')]
             );
 #endif
 
@@ -94,7 +94,10 @@ namespace HCGStudio.HITScheduleMasterCore
         ///     周几的数值记录
         /// </summary>
         public DayOfWeek DayOfWeek { get; set; }
-
+        /// <summary>
+        /// 对本课程是否打开提醒
+        /// </summary>
+        public bool EnableNotification { get; set; }
         /// <summary>
         ///     周几
         /// </summary>
@@ -218,6 +221,7 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <returns>周数</returns>
         private uint ParseWeek(string weekExpression)
         {
+
             var week = 0u;
             _weekExpression =
 #if NETCOREAPP3_1

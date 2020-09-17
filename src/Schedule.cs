@@ -40,7 +40,33 @@ namespace HCGStudio.HITScheduleMasterCore
     public class Schedule : IEnumerable<ScheduleEntry>
     {
         private readonly List<ScheduleEntry> _entries = new List<ScheduleEntry>();
-
+        /// <summary>
+        /// 对本课程表是否打开提醒
+        /// </summary>
+        public bool? EnableNotification
+        {
+            get
+            {
+                bool? r = null;
+                foreach (var entry in this)
+                {
+                    if (r == null)
+                        r = entry.EnableNotification;
+                    else if (r != entry.EnableNotification)
+                        return null;
+                }
+                return r;
+            }
+            set
+            {
+                if (value == null) return;
+                var b = (bool)value;
+                foreach (var entry in this)
+                {
+                    entry.EnableNotification = b;
+                }
+            }
+        }
 
         /// <summary>
         ///     指定年份和学期创建空的课表
@@ -113,7 +139,7 @@ namespace HCGStudio.HITScheduleMasterCore
             //Fix codepage
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
-            var reader = ExcelReaderFactory.CreateReader(inputStream);
+            using var reader = ExcelReaderFactory.CreateReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
             if (!(table.Rows[0][0] is string tableHead))
                 throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
@@ -154,57 +180,6 @@ namespace HCGStudio.HITScheduleMasterCore
             return schedule;
         }
 
-        /// <summary>
-        ///     从已经打打开的CSV流中读取并创建课表
-        /// </summary>
-        /// <param name="inputStream">输入的流</param>
-        public static Schedule LoadFromCsvStream(Stream inputStream)
-        {
-            var res = new ResourceManager(typeof(ScheduleMasterString));
-            //Fix codepage
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
-
-            var reader = ExcelReaderFactory.CreateCsvReader(inputStream);
-            var table = reader.AsDataSet().Tables[0];
-            if (!(table.Rows[0][0] is string tableHead))
-                throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
-
-            var schedule = new Schedule(int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
-                tableHead[4] switch
-                {
-                    '春' => Semester.Spring,
-                    '夏' => Semester.Summer,
-                    _ => Semester.Autumn
-                });
-
-            for (var i = 0; i < 7; i++) //列
-                for (var j = 0; j < 5; j++) //行
-                {
-                    var current = table.Rows[j + 2][i + 2] as string;
-                    if (string.IsNullOrWhiteSpace(current))
-                        continue;
-                    var next = table.Rows[j + 3][i + 2] as string;
-#if NETCOREAPP3_1
-                    var currentCourses = current.Replace("周\n", "周", StringComparison.CurrentCulture).Split('\n');
-#endif
-
-#if NETSTANDARD2_0
-                    var currentCourses = current.Replace("周\n", "周").Split('\n');
-#endif
-                    if (currentCourses.Length % 2 != 0)
-                        throw new Exception(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
-                    for (var c = 0; c < currentCourses.Length; c += 2)
-                        schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
-                            (CourseTime)(j + 1),
-                            currentCourses[c], currentCourses[c + 1],
-                            current == next));
-
-                    if (current == next) j++;
-                }
-
-            return schedule;
-        }
 
         /// <summary>
         ///     向课表中添加条目

@@ -13,17 +13,19 @@ namespace HITScheduleMasterCore.Test
         [TestMethod]
         public void TestXlsImport()
         {
-            var schedule = Schedule.LoadFromXlsStream(new FileStream("张三课表.xls", FileMode.Open));
-            var cal = schedule.GetCalendar();
-            _ = cal.ToString();
+            var files=Directory.GetFiles(Directory.GetCurrentDirectory(), "*.xls");
+
+            foreach (var item in files)
+            {
+                Console.WriteLine($"Testing: {item}");
+                var schedule = Schedule.LoadFromXlsStream(new FileStream(item, FileMode.Open));
+                var cal = schedule.GetCalendar();
+                _ = cal.ToString();
+            }
+            
+
         }
 
-        [TestMethod]
-        public void TestCsvImport()
-        {
-            var schedule = Schedule.LoadFromCsvStream(new FileStream("张三课表.csv", FileMode.Open));
-            var cal = schedule.GetCalendar();
-            _ = cal.ToString();
-        }
+
     }
 }
