@@ -12,9 +12,92 @@ namespace HitRefresh.Schedule
     public class CourseSubEntry:IEnumerable<(int,CourseCell)>
     {
         /// <summary>
+        /// 储存到json
+        /// </summary>
+        /// <returns></returns>
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(new CourseSubEntryJson
+            {
+                CourseName = CourseName,
+                CourseTime = CourseTime,
+                IsLab = IsLab,
+                IsLongCourse = IsLongCourse,
+                DayOfWeek = DayOfWeek,
+                WeekInformation = WeekInformation
+            });
+        }
+        private CourseSubEntry()
+        {
+
+        }
+        private class CourseSubEntryJson
+        {
+            /// <summary>
+            /// 课程名称
+            /// </summary>
+            public string CourseName { get; set; }
+            /// <summary>
+            /// 是否为实验课
+            /// </summary>
+            public bool IsLab { get; set; }
+            /// <summary>
+            /// 在周几上课
+            /// </summary>
+            public DayOfWeek DayOfWeek { get; set; }
+
+
+            /// <summary>
+            ///     课程的时间(第几节课)
+            /// </summary>
+            public CourseTime CourseTime { get; set; }
+
+            /// <summary>
+            ///     是否是两节连在一起那种课
+            /// </summary>
+            public bool IsLongCourse
+            {
+                get;set;
+            }
+
+            /// <summary>
+            /// 周数信息，包含上课的周和对应的教师、教室
+            /// AF: int周数->(str教师,str教室)
+            /// </summary>
+            public IDictionary<int, CourseCell> WeekInformation { get; set; } = new Dictionary<int, CourseCell>();
+
+        }
+        /// <summary>
+        /// 从json产生课表子条目
+        /// </summary>
+        /// <param name="jsonContent"></param>
+        /// <returns></returns>
+        public static CourseSubEntry FromJson(string jsonContent)
+        {
+            
+            var j = JsonConvert.DeserializeObject<CourseSubEntryJson>(jsonContent);
+            var r = new CourseSubEntry()
+            {
+                CourseName=j.CourseName,
+                CourseTime=j.CourseTime,
+                IsLongCourse=j.IsLongCourse,
+                DayOfWeek=j.DayOfWeek,
+                IsLab=j.IsLab
+                
+
+
+            };
+            foreach (var (i,obj) in j.WeekInformation)
+            {
+                r.WeekInformation.Add(i, obj);
+            }
+            return r;
+        }
+
+        /// <summary>
         /// 课程名称
         /// </summary>
-        public string CourseName { get; }
+        public string CourseName { get; private set; }
         /// <summary>
         /// 课程最大持续周数
         /// </summary>

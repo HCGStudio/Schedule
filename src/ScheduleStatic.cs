@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using PlasticMetal.MobileSuit.Core;
 
@@ -12,6 +13,18 @@ namespace HitRefresh.Schedule
     /// </summary>
     public static class ScheduleStatic
     {
+        /// <summary>
+        /// 转换Json为课表
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static ScheduleEntity AsSchedule(this string json) => ScheduleEntity.FromJson(json);
+        /// <summary>
+        /// 转换Json为课程
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static CourseEntry AsCourse(this string json) => CourseEntry.FromJson(json);
         /// <summary>
         ///     课程的时间(第几节课)
         /// </summary>
@@ -117,8 +130,8 @@ namespace HitRefresh.Schedule
         /// Logger
         /// </summary>
         public static Logger Logger { get; } =
-            ILogger.OfFile("D:\\HSM.log");
-        //ILogger.OfTemp();
+        //ILogger.OfFile("D:\\HSM.log");
+        ILogger.OfTemp();
 
         /// <summary>
         /// 老师的名字

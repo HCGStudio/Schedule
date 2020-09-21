@@ -14,6 +14,7 @@ using Calendar = Ical.Net.Calendar;
 using static HitRefresh.Schedule.ScheduleStatic;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace HitRefresh.Schedule
 {
@@ -22,13 +23,97 @@ namespace HitRefresh.Schedule
     /// <summary>
     ///     课表实例
     /// </summary>
-    [JsonObject]
-    public class Schedule : IEnumerable<CourseEntry>
+    public class ScheduleEntity : IEnumerable<CourseEntry>
     {
+        /// <summary>
+        /// 导出到json
+        /// </summary>
+        /// <returns></returns>
+        public string ToJson()
+        => JsonConvert.SerializeObject( new ScheduleJson()
+        {
+            EnableNotification = EnableNotification,
+            DateMap = DateMap,
+            NotificationTime = NotificationTime,
+            DisableWeekIndex = DisableWeekIndex,
+            Semester = Semester,
+            Year = Year,
+            Entries = Entries.Select(e => e.ToJson()).ToList()
+
+        });
+        /// <summary>
+        /// 从json加载课表
+        /// </summary>
+        /// <param name="jsonContent"></param>
+        /// <returns></returns>
+        public static ScheduleEntity FromJson(string jsonContent)
+        {
+            var j = JsonConvert.DeserializeObject<ScheduleJson>(jsonContent);
+            var r = new ScheduleEntity(j.Year, j.Semester)
+            {
+                EnableNotification = j.EnableNotification,
+                DisableWeekIndex = j.DisableWeekIndex,
+                NotificationTime = j.NotificationTime,
+
+            };
+            foreach (var item in j.DateMap)
+            {
+                r.DateMap.Add(item);
+            }
+            foreach (var item in j.Entries)
+            {
+                r.Add(CourseEntry.FromJson(item));
+            }
+            return r;
+        }
+        private class ScheduleJson
+        {
+            /// <summary>
+            /// 日历映射系统
+            /// </summary>
+            public IDictionary<DateTime, DateTime?> DateMap { get; set; } = new Dictionary<DateTime, DateTime?>();
+
+            /// <summary>
+            /// 对本课程表是否打开提醒
+            /// </summary>
+            public bool? EnableNotification
+            {
+                get; set;
+            }
+            /// <summary>
+            /// 提醒发送的时间
+            /// </summary>
+            public int NotificationTime { get; set; } = 25;
+
+            /// <summary>
+            /// 是否禁用周序号索引
+            /// 如果设为true，则不会在每一周的日历事件上添加周索引事件。默认为false
+            /// </summary>
+            public bool DisableWeekIndex { get; set; }
+
+            /// <summary>
+            ///     当前课表中所有的条目
+            /// </summary>
+            public List<string> Entries { get; set; } = new List<string>();
+
+            /// <summary>
+            ///     课表的年份
+            /// </summary>
+            public int Year { get; set; }
+
+
+            /// <summary>
+            ///     课表的学期
+            /// </summary>
+
+            public Semester Semester { get; set; }
+
+
+
+        }
         /// <summary>
         /// 课程最大持续周数
         /// </summary>
-        [JsonIgnore]
         public int MaxWeek => Entries.Select(e => e.MaxWeek).Max();
         /// <summary>
         /// 日历映射系统
@@ -72,7 +157,7 @@ namespace HitRefresh.Schedule
         /// </summary>
         /// <param name="year">要创建课表的年份</param>
         /// <param name="semester">要创建课表的学期</param>
-        public Schedule(int year, Semester semester)
+        public ScheduleEntity(int year, Semester semester)
         {
             Year = year;
             Semester = semester;
@@ -81,7 +166,7 @@ namespace HitRefresh.Schedule
         /// <summary>
         ///     创建空的课表，学期和季节为默认
         /// </summary>
-        public Schedule()
+        public ScheduleEntity()
         {
         }
         /// <summary>
@@ -112,7 +197,7 @@ namespace HitRefresh.Schedule
         /// </summary>
         /// <param name="courseName"></param>
         /// <returns></returns>
-        public void Add(string courseName) => Entries.Add(new CourseEntry( courseName));
+        public void Add(string courseName) => Entries.Add(new CourseEntry(courseName));
         /// <summary>
         /// 添加具有指定名称的课程
         /// </summary>
@@ -159,14 +244,19 @@ namespace HitRefresh.Schedule
         /// <summary>
         ///     课表的学期
         /// </summary>
-        
-        public Semester Semester { get; set; }
 
+        public Semester Semester { get; set; }
         /// <summary>
         ///     从已经打打开的XLS流中读取并创建课表
         /// </summary>
         /// <param name="inputStream">输入的流</param>
-        public static Schedule LoadFromXlsStream(Stream inputStream)
+        [Obsolete("请使用FromXls替代此方法")]
+        public static ScheduleEntity LoadFromXlsStream(Stream inputStream) => FromXls(inputStream);
+        /// <summary>
+        ///     从已经打打开的XLS流中读取并创建课表
+        /// </summary>
+        /// <param name="inputStream">输入的流</param>
+        public static ScheduleEntity FromXls(Stream inputStream)
         {
             //var res = new ResourceManager(typeof(ScheduleMasterString));
             //Fix codepage
@@ -177,7 +267,7 @@ namespace HitRefresh.Schedule
             if (!(table.Rows[0][0] is string tableHead))
                 throw new ArgumentException(ScheduleMasterString.课表格式错误);
 
-            var schedule = new Schedule(
+            var schedule = new ScheduleEntity(
                 int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
                 tableHead[4] switch
                 {
@@ -211,7 +301,7 @@ namespace HitRefresh.Schedule
                             schedule.Entries.Add(new CourseEntry(courseName));
                         }
                         schedule.Entries[courseName].AddSubEntry(
-                            
+
                                 (DayOfWeek)((i + 1) % 7),
                                 (CourseTime)(j + 1),
                                 current == next,
@@ -225,8 +315,8 @@ namespace HitRefresh.Schedule
             return schedule;
         }
 
-        
-        
+
+
 
 
         /// <summary>
@@ -247,7 +337,7 @@ namespace HitRefresh.Schedule
             if (!DisableWeekIndex)
             {
                 var maxWeek = MaxWeek;
-                for (var i = 1; i <= maxWeek; i++)
+                for (var i = 0; i < maxWeek; i++)
                 {
                     var courseDate = SemesterStart.AddDays(i * 7).AddHours(7);
 
@@ -255,7 +345,7 @@ namespace HitRefresh.Schedule
                     {
                         Start = new CalDateTime(courseDate),
                         Duration = TimeSpan.FromHours(0),
-                        Summary = $"第{i}周"
+                        Summary = $"第{i + 1}周"
                     };
 
 
@@ -270,9 +360,9 @@ namespace HitRefresh.Schedule
                 {
                     //var i = 0;
                     var dayOfWeek = subEntry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)subEntry.DayOfWeek - 1;
-                    foreach (var (i,item) in subEntry)
+                    foreach (var (i, item) in subEntry)
                     {
-                        var courseDate = SemesterStart.AddDays(i * 7 + dayOfWeek);
+                        var courseDate = SemesterStart.AddDays((i - 1) * 7 + dayOfWeek);
 
 
                         if (DateMap.ContainsKey(courseDate))

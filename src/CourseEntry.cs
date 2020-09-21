@@ -15,16 +15,39 @@ namespace HitRefresh.Schedule
         private class CourseEntryJson
         {
             public string CourseName { get; set; }
-            public List<CourseSubEntry> SubEntries { get; } = new List<CourseSubEntry>();
+            public bool EnableNotification { get; set; }
+            public List<string> SubEntries { get; set; } = new List<string>();
         }
         /// <summary>
         ///     从json生成课程
         /// </summary>
-        public CourseEntry FromJson()
+        public static CourseEntry FromJson(string jsonContent)
         {
-            return new CourseEntry();
+            var j = JsonConvert.DeserializeObject<CourseEntryJson>(jsonContent);
+            var r = new CourseEntry()
+            {
+                CourseName = j.CourseName,
+                EnableNotification = j.EnableNotification
+            };
+            foreach (var item in j.SubEntries)
+            {
+                r.AddSubEntry(CourseSubEntry.FromJson(item));
+            }
+            return r;
         }
-
+        /// <summary>
+        /// 储存到json
+        /// </summary>
+        /// <returns></returns>
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(new CourseEntryJson
+            {
+                CourseName = CourseName,
+                EnableNotification = EnableNotification,
+                SubEntries = SubEntries.Select(se => se.ToJson()).ToList()
+            }); ;
+        }
         private CourseEntry()
         {
         }
@@ -50,7 +73,7 @@ namespace HitRefresh.Schedule
         /// <summary>
         /// 课程包含的子条目
         /// </summary>
-        private List<CourseSubEntry> SubEntries { get; } = new List<CourseSubEntry>(); //SortedList<DayOfWeek,CourseSubEntry>();
+        private List<CourseSubEntry> SubEntries { get;} = new List<CourseSubEntry>(); //SortedList<DayOfWeek,CourseSubEntry>();
 
         /// <summary>
         /// 返回位置为i的子条目的引用
@@ -85,15 +108,21 @@ namespace HitRefresh.Schedule
         public CourseSubEntry AddSubEntry(DayOfWeek dayOfWeek, CourseTime courseTime, bool isLongCourse, bool isLab, string weekExpression)
         {
             var r = new CourseSubEntry(CourseName, dayOfWeek, courseTime, isLongCourse, isLab, weekExpression);
-            SubEntries.Add(r);
-            SubEntries.Sort((c1, c2) =>
-            {
-                return (int)c1.DayOfWeek * 10 + c1.CourseTime - (int)c2.DayOfWeek * 10 - c2.CourseTime;
-            });
+            AddSubEntry(r);
             return r;
 
         }
 
+        private void AddSubEntry(CourseSubEntry e)
+        {
+            
+            SubEntries.Add(e);
+            SubEntries.Sort((c1, c2) =>
+            {
+                return (int)c1.DayOfWeek * 10 + c1.CourseTime - (int)c2.DayOfWeek * 10 - c2.CourseTime;
+            });
+
+        }
 
 
         /// <inheritdoc/>
