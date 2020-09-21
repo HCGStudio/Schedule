@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>HCGStudio.HitScheduleMaster</PackageId>
+    <PackageId>HitRefresh.Schedule</PackageId>
     <Version>1.3.1</Version>
-    <Authors>HCGStudio</Authors>
+    <Authors>HitReFreSH</Authors>
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
-    <RootNamespace>HCGStudio.HitScheduleMaster</RootNamespace>
-    <PackageProjectUrl>https://github.com/HCGStudio/HIT-Schedule-Master-Core</PackageProjectUrl>
+    <RootNamespace>HitRefresh.Schedule</RootNamespace>
+    <PackageProjectUrl>https://github.com/HIT-ReFreSH/Schedule</PackageProjectUrl>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

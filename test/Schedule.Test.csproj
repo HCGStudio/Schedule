@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\HITScheduleMasterCore.csproj" />
+    <ProjectReference Include="..\src\Schedule.csproj" />
   </ItemGroup>
 
   <ItemGroup>

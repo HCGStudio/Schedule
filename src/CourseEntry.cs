@@ -3,9 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using static HCGStudio.HitScheduleMaster.ScheduleStatic;
+using static HitRefresh.Schedule.ScheduleStatic;
 
-namespace HCGStudio.HitScheduleMaster
+namespace HitRefresh.Schedule
 {
     /// <summary>
     /// 记载课程的课表条目
@@ -22,7 +22,7 @@ namespace HCGStudio.HitScheduleMaster
         /// </summary>
         public CourseEntry FromJson()
         {
-
+            return new CourseEntry();
         }
 
         private CourseEntry()

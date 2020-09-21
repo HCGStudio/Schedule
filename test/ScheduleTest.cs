@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using HCGStudio.HITScheduleMasterCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HITScheduleMasterCore.Test
@@ -18,7 +17,7 @@ namespace HITScheduleMasterCore.Test
             foreach (var item in files)
             {
                 Console.WriteLine($"Testing: {item}");
-                var schedule = Schedule.LoadFromXlsStream(new FileStream(item, FileMode.Open));
+                var schedule = //Schedule.LoadFromXlsStream(new FileStream(item, FileMode.Open));
                 var cal = schedule.GetCalendar();
                 _ = cal.ToString();
             }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace HCGStudio.HitScheduleMaster
+namespace HitRefresh.Schedule
 {
     /// <summary>
     /// 课程的集合

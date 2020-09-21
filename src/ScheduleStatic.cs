@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using PlasticMetal.MobileSuit.Core;
 
-namespace HCGStudio.HitScheduleMaster
+namespace HitRefresh.Schedule
 {
     /// <summary>
     /// 静态资源

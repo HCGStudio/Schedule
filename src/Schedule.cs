@@ -11,11 +11,11 @@ using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Calendar = Ical.Net.Calendar;
-using static HCGStudio.HitScheduleMaster.ScheduleStatic;
+using static HitRefresh.Schedule.ScheduleStatic;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
-namespace HCGStudio.HitScheduleMaster
+namespace HitRefresh.Schedule
 {
 
 

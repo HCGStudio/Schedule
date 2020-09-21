@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HCGStudio.HitScheduleMaster
+namespace HitRefresh.Schedule
 {
     
     /// <summary>

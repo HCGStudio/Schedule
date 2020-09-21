@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static HCGStudio.HitScheduleMaster.ScheduleStatic;
+using static HitRefresh.Schedule.ScheduleStatic;
 
-namespace HCGStudio.HitScheduleMaster
+namespace HitRefresh.Schedule
 {
     /// <summary>
     /// 课程代表条目的子条目，实际上是某节课的时间;
