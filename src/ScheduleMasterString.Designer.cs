@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HCGStudio.HITScheduleMasterCore {
+namespace HCGStudio.HitScheduleMaster {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace HCGStudio.HITScheduleMasterCore {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HCGStudio.HITScheduleMasterCore.ScheduleMasterString", typeof(ScheduleMasterString).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HCGStudio.HitScheduleMaster.ScheduleMasterString", typeof(ScheduleMasterString).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

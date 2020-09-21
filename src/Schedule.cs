@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,36 +11,30 @@ using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Calendar = Ical.Net.Calendar;
+using static HCGStudio.HitScheduleMaster.ScheduleStatic;
+using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 
-namespace HCGStudio.HITScheduleMasterCore
+namespace HCGStudio.HitScheduleMaster
 {
-    /// <summary>
-    ///     课表中的学期
-    /// </summary>
-    public enum Semester
-    {
-        /// <summary>
-        /// 春季学期
-        /// </summary>
-        Spring = 0,
 
-        /// <summary>
-        /// 秋季学期
-        /// </summary>
-        Autumn = 2,
 
-        /// <summary>
-        /// 夏季学期
-        /// </summary>
-        Summer = 1
-    }
-#pragma warning disable CA1710
     /// <summary>
     ///     课表实例
     /// </summary>
-    public class Schedule : IEnumerable<ScheduleEntry>
+    [JsonObject]
+    public class Schedule : IEnumerable<CourseEntry>
     {
-        private readonly List<ScheduleEntry> _entries = new List<ScheduleEntry>();
+        /// <summary>
+        /// 课程最大持续周数
+        /// </summary>
+        [JsonIgnore]
+        public int MaxWeek => Entries.Select(e => e.MaxWeek).Max();
+        /// <summary>
+        /// 日历映射系统
+        /// </summary>
+        public IDictionary<DateTime, DateTime?> DateMap { get; } = new Dictionary<DateTime, DateTime?>();
+
         /// <summary>
         /// 对本课程表是否打开提醒
         /// </summary>
@@ -67,6 +62,10 @@ namespace HCGStudio.HITScheduleMasterCore
                 }
             }
         }
+        /// <summary>
+        /// 提醒发送的时间
+        /// </summary>
+        public int NotificationTime { get; set; } = 25;
 
         /// <summary>
         ///     指定年份和学期创建空的课表
@@ -80,54 +79,88 @@ namespace HCGStudio.HITScheduleMasterCore
         }
 
         /// <summary>
-        ///     创建空的课表，请不要单独使用这个API，会导致年份与学期无法更改
+        ///     创建空的课表，学期和季节为默认
         /// </summary>
         public Schedule()
         {
         }
-
-        private static DateTime[] SemesterStarts => new[]
-        {
-            new DateTime(2020, 02, 24),
-            new DateTime(2020, 06, 29),
-            new DateTime(2020, 09, 07),
-            new DateTime(2021, 03, 08),
-            new DateTime(2021, 07, 12)
-
-        };
+        /// <summary>
+        /// 是否禁用周序号索引
+        /// 如果设为true，则不会在每一周的日历事件上添加周索引事件。默认为false
+        /// </summary>
+        public bool DisableWeekIndex { get; set; }
 
         /// <summary>
         ///     获取指定的课表条目
         /// </summary>
         /// <param name="index">课表条目的索引</param>
         /// <returns>实例中储存的课表条目实例</returns>
-        public ScheduleEntry this[int index] => _entries[index];
+        public CourseEntry this[int index] => Entries[index];
 
         /// <summary>
         ///     当前课表中所有的条目
         /// </summary>
-        [Obsolete("请使用其他替代方法")]
-        public List<ScheduleEntry> Entries => new List<ScheduleEntry>(_entries);
-
+        private CourseEntryCollection Entries { get; } = new CourseEntryCollection();
         /// <summary>
-        ///     当前课表中条目的数量
+        /// 判断是否有指定名称的课程
         /// </summary>
-        public int Count => _entries.Count;
+        /// <param name="courseName"></param>
+        /// <returns></returns>
+        public bool Contains(string courseName) => Entries.Contains(courseName);
+        /// <summary>
+        /// 添加具有指定名称的课程
+        /// </summary>
+        /// <param name="courseName"></param>
+        /// <returns></returns>
+        public void Add(string courseName) => Entries.Add(new CourseEntry( courseName));
+        /// <summary>
+        /// 添加具有指定名称的课程
+        /// </summary>
+        /// <param name="courseName"></param>
+        /// <returns></returns>
+        public void Remove(string courseName) => Entries.Remove(courseName);
+        /// <summary>
+        /// 添加具有指定名称的课程
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        public void Add(CourseEntry entry) => Entries.Add(entry);
+        /// <summary>
+        /// 获取指定名称的课程，没有则添加
+        /// </summary>
+        /// <param name="courseName"></param>
+        /// <returns></returns>
+        public CourseEntry this[string courseName]
+        {
+            get
+            {
+                if (!Contains(courseName))
+                    Add(courseName);
+                return Entries[courseName];
+            }
+        }
+
+        ///// <summary>
+        /////     当前课表中条目的数量
+        ///// </summary>
+        //public int Count => _entries.Count;
 
         /// <summary>
         ///     课表的年份
         /// </summary>
-        public int Year { get; }
+        public int Year { get; set; }
 
         /// <summary>
         ///     课表学期开始的时间
         /// </summary>
+        [JsonIgnore]
         public DateTime SemesterStart => SemesterStarts[Year - 2020 + (int)Semester];
 
         /// <summary>
         ///     课表的学期
         /// </summary>
-        public Semester Semester { get; }
+        
+        public Semester Semester { get; set; }
 
         /// <summary>
         ///     从已经打打开的XLS流中读取并创建课表
@@ -135,16 +168,17 @@ namespace HCGStudio.HITScheduleMasterCore
         /// <param name="inputStream">输入的流</param>
         public static Schedule LoadFromXlsStream(Stream inputStream)
         {
-            var res = new ResourceManager(typeof(ScheduleMasterString));
+            //var res = new ResourceManager(typeof(ScheduleMasterString));
             //Fix codepage
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //I want to say f-word here, but no idea to microsoft, mono or ExcelDataReader
             using var reader = ExcelReaderFactory.CreateReader(inputStream);
             var table = reader.AsDataSet().Tables[0];
             if (!(table.Rows[0][0] is string tableHead))
-                throw new ArgumentException(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
+                throw new ArgumentException(ScheduleMasterString.课表格式错误);
 
-            var schedule = new Schedule(int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
+            var schedule = new Schedule(
+                int.Parse(tableHead[..4], CultureInfo.GetCultureInfo("zh-Hans").NumberFormat),
                 tableHead[4] switch
                 {
                     '春' => Semester.Spring,
@@ -159,20 +193,31 @@ namespace HCGStudio.HITScheduleMasterCore
                     if (string.IsNullOrWhiteSpace(current))
                         continue;
                     var next = table.Rows[j + 3][i + 2] as string;
-#if NETCOREAPP3_1
                     var currentCourses = current.Replace("周\n", "周", StringComparison.CurrentCulture).Split('\n');
-#endif
 
-#if NETSTANDARD2_0
-                    var currentCourses = current.Replace("周\n", "周").Split('\n');
-#endif
                     if (currentCourses.Length % 2 != 0)
-                        throw new Exception(res.GetString("课表格式错误", CultureInfo.CurrentCulture));
+                        throw new Exception(ScheduleMasterString.课表格式错误);
                     for (var c = 0; c < currentCourses.Length; c += 2)
-                        schedule._entries.Add(new ScheduleEntry((DayOfWeek)((i + 1) % 7),
-                            (CourseTime)(j + 1),
-                            currentCourses[c], currentCourses[c + 1],
-                            current == next));
+                    {
+                        var courseName = currentCourses[c];
+                        var isLab = false;
+                        if (courseName.Contains("(实验)", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            isLab = true;
+                            courseName = courseName.Replace("(实验)", "", StringComparison.CurrentCultureIgnoreCase);
+                        }
+                        if (!schedule.Entries.Contains(courseName))
+                        {
+                            schedule.Entries.Add(new CourseEntry(courseName));
+                        }
+                        schedule.Entries[courseName].AddSubEntry(
+                            
+                                (DayOfWeek)((i + 1) % 7),
+                                (CourseTime)(j + 1),
+                                current == next,
+                                isLab,
+                                currentCourses[c + 1]);
+                    }
 
                     if (current == next) j++;
                 }
@@ -180,87 +225,94 @@ namespace HCGStudio.HITScheduleMasterCore
             return schedule;
         }
 
+        
+        
 
-        /// <summary>
-        ///     向课表中添加条目
-        /// </summary>
-        /// <param name="scheduleEntry">要添加的条目</param>
-        public void AddScheduleEntry(ScheduleEntry scheduleEntry)
-        {
-            _entries.Add(scheduleEntry);
-        }
 
-        /// <summary>
-        ///     移除指定的条目
-        /// </summary>
-        /// <param name="index">条目的索引</param>
-        public void RemoveAt(int index)
-        {
-            _entries.RemoveAt(index);
-        }
-        /// <summary>
-        /// 移除指定的条目
-        /// </summary>
-        /// <param name="item">条目</param>
-        /// <returns>是否成功移除</returns>
-        public bool Remove(ScheduleEntry item)
-        {
-            return _entries.Remove(item);
-        }
         /// <summary>
         ///     将当前课表实例转化为日历
         /// </summary>
         /// <returns>表示当前课表的日历实例</returns>
-        public Calendar GetCalendar()
+        [Obsolete("请使用ToCalendar代替此方法")]
+        public Calendar GetCalendar() => ToCalendar();
+        /// <summary>
+        ///     将当前课表实例转化为日历
+        /// </summary>
+        /// <returns>表示当前课表的日历实例</returns>
+        public Calendar ToCalendar()
         {
             var res = new ResourceManager(typeof(ScheduleMasterString));
             var calendar = new Calendar();
             calendar.AddTimeZone(new VTimeZone("Asia/Shanghai"));
-            foreach (var entry in _entries)
+            if (!DisableWeekIndex)
             {
-                var i = 0;
-                var dayOfWeek = entry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)entry.DayOfWeek - 1;
-                for (var w = entry.Week >> 1; w != 0; w >>= 1, i++)
+                var maxWeek = MaxWeek;
+                for (var i = 1; i <= maxWeek; i++)
                 {
-                    if ((w & 1) != 1) continue;
+                    var courseDate = SemesterStart.AddDays(i * 7).AddHours(7);
+
                     var cEvent = new CalendarEvent
                     {
-                        Location = entry.Location,
-                        Start = new CalDateTime(
-                            SemesterStart.AddDays(i * 7 + dayOfWeek) + entry.StartTime),
-                        Duration = entry.Length,
-                        Summary = $"{entry.CourseName} by {entry.Teacher} at {entry.Location}"
+                        Start = new CalDateTime(courseDate),
+                        Duration = TimeSpan.FromHours(0),
+                        Summary = $"第{i}周"
                     };
-                    if (entry.EnableNotification) cEvent.Alarms.Add(new Alarm
-                    {
-                        Summary = string.Format(CultureInfo.CurrentCulture,
-                            res.GetString("您在{0}有一节{1}即将开始", CultureInfo.CurrentCulture)!,
-                            entry.Location, entry.CourseName),
-                        Action = AlarmAction.Display,
-                        Trigger = new Trigger(TimeSpan.FromMinutes(-25))
-                    });
-                    else
-                    {
-                        cEvent.Alarms.Clear();
-                    }
+
+
+                    cEvent.Alarms.Clear();
+
                     calendar.Events.Add(cEvent);
                 }
             }
+            foreach (var entry in Entries)
+            {
+                foreach (var subEntry in entry)
+                {
+                    //var i = 0;
+                    var dayOfWeek = subEntry.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)subEntry.DayOfWeek - 1;
+                    foreach (var (i,item) in subEntry)
+                    {
+                        var courseDate = SemesterStart.AddDays(i * 7 + dayOfWeek);
 
-            //var sem = Semester switch
-            //{
-            //    Semester.Autumn => "秋",
-            //    Semester.Summer => "夏",
-            //    _ => "春"
-            //};
-            //calendar.Name = $"{Year}{sem}课程表";
+
+                        if (DateMap.ContainsKey(courseDate))
+                        {
+                            if (DateMap[courseDate] == null) continue;
+                            courseDate = (DateTime)DateMap[courseDate];
+                        }
+                        courseDate += subEntry.StartTime;
+                        var cEvent = new CalendarEvent
+                        {
+                            Location = item.Location,
+                            Start = new CalDateTime(courseDate),
+                            Duration = subEntry.Length,
+                            Summary = $"{entry.CourseName}{(subEntry.IsLab ? "(实验)" : "")} by {item.Teacher}"
+                        };
+
+                        if (entry.EnableNotification) cEvent.Alarms.Add(new Alarm
+                        {
+                            Summary = string.Format(CultureInfo.CurrentCulture,
+                                res.GetString("您在{0}有一节{1}即将开始", CultureInfo.CurrentCulture)!,
+                                item.Location, entry.CourseName),
+                            Action = AlarmAction.Display,
+                            Trigger = new Trigger(TimeSpan.FromMinutes(-NotificationTime))
+                        });
+                        else
+                        {
+                            cEvent.Alarms.Clear();
+                        }
+                        calendar.Events.Add(cEvent);
+                    }
+                }
+
+            }
             return calendar;
         }
 
         /// <inheritdoc />
-        public IEnumerator<ScheduleEntry> GetEnumerator()
+        public IEnumerator<CourseEntry> GetEnumerator()
         {
-            return _entries.GetEnumerator();
+            return Entries.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
