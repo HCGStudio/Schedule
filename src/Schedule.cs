@@ -30,7 +30,7 @@ namespace HitRefresh.Schedule
         /// </summary>
         /// <returns></returns>
         public string ToJson()
-        => JsonConvert.SerializeObject( new ScheduleJson()
+        => JsonConvert.SerializeObject(new ScheduleJson()
         {
             EnableNotification = EnableNotification,
             DateMap = DateMap,
@@ -345,7 +345,12 @@ namespace HitRefresh.Schedule
                     {
                         Start = new CalDateTime(courseDate),
                         Duration = TimeSpan.FromHours(0),
-                        Summary = $"第{i + 1}周"
+                        Summary = $"第{i + 1}周",
+                        RecurrenceRules = new List<RecurrencePattern> {
+                            new RecurrencePattern(FrequencyType.Daily, 1){
+                                Count=7
+                            }
+                        },
                     };
 
 
